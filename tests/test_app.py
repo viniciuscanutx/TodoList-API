@@ -13,5 +13,27 @@ def test_root_deve_retornar_ok_e_ola_mundo():
     assert response.status_code == HTTPStatus.OK  # Assert
     assert response.json() == {  # Assert
         'message': 'Feliz Natal!',
-        'anothermessage': 'Brutalist!',
+        'value': 11.99,
+        'author': 'João',
+    }
+
+
+def test_create_user():
+    client = TestClient(app)
+
+    response = client.post(
+        '/users/add',
+        json={
+            'username': 'testusername',
+            'email': 'teste@testegenio.com',
+            'password': '1235',
+        },
+    )
+
+    assert response.status_code == HTTPStatus.CREATED
+
+    assert response.json() == {
+        'id': 1,
+        'username': 'testusername',
+        'email': 'teste@testegenio.com',
     }
