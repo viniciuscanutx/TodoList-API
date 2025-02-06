@@ -4,6 +4,11 @@ from fastapi.testclient import TestClient
 
 from fastapiproj.app import app
 
+import pytest
+
+@pytest.fixture()
+def client():
+    return TestClient(app)
 
 def test_root_deve_retornar_ok_e_ola_mundo():
     client = TestClient(app)  # Arrange
