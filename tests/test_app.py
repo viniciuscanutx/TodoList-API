@@ -1,15 +1,5 @@
 from http import HTTPStatus
 
-import pytest
-from fastapi.testclient import TestClient
-
-from fastapiproj.app import app
-
-
-@pytest.fixture
-def client():
-    return TestClient(app)
-
 
 def test_root_deve_retornar_ok_e_ola_mundo(client):
     response = client.get('/')  # Act
@@ -38,4 +28,19 @@ def test_create_user(client):
         'id': 1,
         'username': 'testusername',
         'email': 'teste@testegenio.com',
+    }
+
+
+def test_read_users(client):
+    response = client.get('/users/get')
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'users': [
+            {
+                'id': 1,
+                'username': 'testusername',
+                'email': 'teste@testegenio.com',
+            }
+        ]
     }
