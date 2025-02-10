@@ -1,10 +1,8 @@
 from pydantic import BaseModel, EmailStr
 
 
-class Message(BaseModel):
+class MessageUser(BaseModel):
     message: str
-    value: float
-    author: str
 
 
 class UserSchema(BaseModel):

@@ -6,9 +6,7 @@ def test_root_deve_retornar_ok_e_ola_mundo(client):
 
     assert response.status_code == HTTPStatus.OK  # Assert
     assert response.json() == {  # Assert
-        'message': 'Feliz Natal!',
-        'value': 11.99,
-        'author': 'João',
+        'message': 'Feliz Natal!'
     }
 
 
@@ -44,3 +42,50 @@ def test_read_users(client):
             }
         ]
     }
+
+
+def test_update_user(client):
+    response = client.put(
+        '/users/1',
+        json={
+            'username': 'testusername2',
+            'email': 'teste@testegenio.com',
+            'password': '12353',
+            'id': 1,
+        },
+    )
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'username': 'testusername2',
+        'email': 'teste@testegenio.com',
+        'id': 1,
+    }
+
+
+def test_delete_user(client):
+    response = client.delete('/users/1')
+
+    assert response.json() == {'message': 'Usuário deletado com sucesso!'}
+
+
+def test_update_user_not_found(client):
+    response = client.put(
+        '/users/999',
+        json={
+            'username': 'testusername2',
+            'email': 'teste@testegenio.com',
+            'password': '12353',
+            'id': 999,
+        },
+    )
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+    assert response.json() == {'detail': 'Usuário não encontrado!'}
+
+
+def test_delete_user_not_found(client):
+    response = client.delete('/users/999')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+    assert response.json() == {'detail': 'Usuário não encontrado!'}
