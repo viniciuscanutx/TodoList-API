@@ -2,8 +2,13 @@ from http import HTTPStatus
 
 from fastapi import FastAPI, HTTPException
 
-from fastapiproj.schema.schema import MessageUser, UserDB, UserSchema
-from fastapiproj.schema.schemaDto import UserListDto, UserSchemaDto
+from fastapiproj.schema.schema import (
+    MessageUser,
+    UserDB,
+    UserListDto,
+    UserSchema,
+    UserSchemaDto,
+)
 
 app = FastAPI()
 
@@ -27,7 +32,7 @@ def read_all_users():
 
 @app.get('/users/{user_id}', response_model=UserSchemaDto)
 def get_user_per_id(user_id: int):
-    user_with_id = database[user_id - 1] 
+    user_with_id = database[user_id - 1]
 
     return user_with_id
 
