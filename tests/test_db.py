@@ -1,18 +1,20 @@
-from sqlalchemy import create_engine
+from sqlalchemy import select
 
-from fastapiproj.models.model import User, table_registry
+from fastapiproj.models.model import User
 
 
-def test_create_user():
-    engine = create_engine('sqlite:///database.db')
-
-    table_registry.metadata.create_all(engine)
-
+def test_create_user(session):
     user = User(
-        username='kleberpereira',
-        email='kleber@pereira.com',
-        password='minhasenha@123',
+            username='kleberpereira',
+            email='kleber@pereira.com',
+            password='minhasenha@123',
     )
-    
-    
-    assert user.username == 'kleberpereira'
+    # Adicionando as infos de User a sessão.
+    session.add(user)
+    # Comitando as informações para o Banco de Dados.
+    session.commit()
+    result = session.scalar(
+            select(User).where(User.email == 'kleber@pereira.com')
+    )
+
+    assert result.id == 1
