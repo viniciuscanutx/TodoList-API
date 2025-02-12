@@ -29,6 +29,8 @@ run = 'fastapi dev fastapiproj/app.py'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=fastapiproj -vv'
 post_test = 'coverage html'
+alembicrev = 'alembic revision --autogenerate -m "create users table'
+alembichead = 'alembic upgrade head'
 
 [tool.pytest.ini_options]
 pythonpath = "."
