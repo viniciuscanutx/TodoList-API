@@ -1,7 +1,11 @@
 from http import HTTPStatus
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 
+from fastapiproj.config.database import get_session
+from fastapiproj.models.model import User
 from fastapiproj.schema.schema import (
     MessageUser,
     UserDB,
@@ -26,8 +30,9 @@ def new_route():
 
 
 @app.get('/users/get', response_model=UserListDto)
-def read_all_users():
-    return {'users': database}
+def read_all_users(session: Session = Depends(get_session)):
+    user = session.scalars(select(User))
+    return {'users': user}
 
 
 @app.get('/users/{user_id}', response_model=UserSchemaDto)
@@ -40,12 +45,33 @@ def get_user_per_id(user_id: int):
 @app.post(
     '/users/add', status_code=HTTPStatus.CREATED, response_model=UserSchemaDto
 )
-def create_user(user: UserSchema):
-    user_with_id = UserDB(id=len(database) + 1, **user.model_dump())
+def create_user(user: UserSchema, session=Depends(get_session)):
+    db_user = session.scalar(
+        select(User).where(
+            (User.username == user.username) | (User.email == user.email)
+        )
+    )
 
-    database.append(user_with_id)
+    if db_user:
+        if db_user.username == user.username:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail='Username ja existe!',
+            )
+        elif db_user.email == user.email:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST, detail='Email ja existe!'
+            )
 
-    return user_with_id
+    db_user = User(
+        username=user.username, email=user.email, password=user.password
+    )
+
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+
+    return db_user
 
 
 @app.put('/users/{user_id}', response_model=UserSchemaDto)
