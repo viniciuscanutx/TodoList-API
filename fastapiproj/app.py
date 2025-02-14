@@ -30,8 +30,10 @@ def new_route():
 
 
 @app.get('/users/get', response_model=UserListDto)
-def read_all_users(session: Session = Depends(get_session)):
-    user = session.scalars(select(User))
+def read_all_users(
+    skip: int = 0, limit: int = 10, session: Session = Depends(get_session)
+):
+    user = session.scalars(select(User).limit(limit).offset(skip))
     return {'users': user}
 
 

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from fastapiproj.app import app
 from fastapiproj.config.database import get_session
-from fastapiproj.models.model import table_registry
+from fastapiproj.models.model import User, table_registry
 
 
 @pytest.fixture
@@ -38,3 +38,13 @@ def session():
 
     # Dropa conexão (Tear Down)
     table_registry.metadata.drop_all(engine)
+
+
+@pytest.fixture
+def user(session):
+    user = User(username='Teste', email='teste@test.com', password='testtest')
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
