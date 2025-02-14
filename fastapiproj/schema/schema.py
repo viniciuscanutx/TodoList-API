@@ -11,10 +11,6 @@ class UserSchema(BaseModel):
     password: str
 
 
-class UserDB(UserSchema):
-    id: int
-
-
 class UserSchemaDto(BaseModel):
     id: int
     username: str

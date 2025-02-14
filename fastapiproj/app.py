@@ -8,15 +8,12 @@ from fastapiproj.config.database import get_session
 from fastapiproj.models.model import User
 from fastapiproj.schema.schema import (
     MessageUser,
-    UserDB,
     UserListDto,
     UserSchema,
     UserSchemaDto,
 )
 
 app = FastAPI()
-
-database = []
 
 
 @app.get(
@@ -38,10 +35,10 @@ def read_all_users(
 
 
 @app.get('/users/{user_id}', response_model=UserSchemaDto)
-def get_user_per_id(user_id: int):
-    user_with_id = database[user_id - 1]
+def get_user_per_id(user_id: int, session: Session = Depends(get_session)):
+    db_user = session.scalar(select(User).where(User.id == user_id))
 
-    return user_with_id
+    return db_user
 
 
 @app.post(
@@ -77,30 +74,36 @@ def create_user(user: UserSchema, session=Depends(get_session)):
 
 
 @app.put('/users/{user_id}', response_model=UserSchemaDto)
-def update_user(user_id: int, user: UserSchema):
-    # verificação para ver se o usuário realmente existe na db
-    if user_id > len(database) or user_id < 1:
-        # Exception caso não exista o usuario.
+def update_user(
+    user_id: int, user: UserSchema, session: Session = Depends(get_session)
+):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado!'
         )
 
-    # Dumpando o ID do usuario através da USERDB.
-    user_with_id = UserDB(**user.model_dump(), id=user_id)
-    # Substituindo a posição do ID informado na url.
-    database[user_id - 1] = user_with_id
+    db_user.email = user.email
+    db_user.username = user.username
+    db_user.password = user.password
 
-    return user_with_id
+    session.commit()
+    session.refresh(db_user)
+
+    return db_user
 
 
 @app.delete('/users/{user_id}', response_model=MessageUser)
-def delete_user(user_id: int):
-    if user_id > len(database) or user_id < 1:
-        # Exception caso não exista o usuario.
+def delete_user(user_id: int, session: Session = Depends(get_session)):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado!'
         )
 
-    del database[user_id - 1]
+    session.delete(db_user)
+    session.commit()
 
     return {'message': 'Usuário deletado com sucesso!'}
