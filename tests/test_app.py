@@ -51,24 +51,64 @@ def test_update_user(client, user):
     response = client.put(
         '/users/1',
         json={
-            'username': 'testusername2',
-            'email': 'teste@testegenio.com',
-            'password': '12353',
-            'id': 1,
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
         },
     )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {
-        'username': 'testusername2',
-        'email': 'teste@testegenio.com',
+        'username': 'bob',
+        'email': 'bob@example.com',
         'id': 1,
     }
 
 
-def test_delete_user(client):
-    response = client.delete('/users/1')
+def test_get_user(client, user):
+    response = client.get(f'/users/{user.id}')
 
-    assert response.json() == {'detail': 'Usuário não encontrado!'}
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {
+        'username': user.username,
+        'email': user.email,
+        'id': user.id,
+    }
+
+
+def test_create_user_should_return_400_username_exists__exercicio(
+    client, user
+):
+    response = client.post(
+        '/users/',
+        json={
+            'username': user.username,
+            'email': 'alice@example.com',
+            'password': 'secret',
+        },
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Username já existe!'}
+
+
+def test_create_user_should_return_400_email_exists__exercicio(
+    client, 
+    user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'alice',
+            'email': user.email,
+            'password': 'secret',
+        },
+    )
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Email já existe!'}
+
+
+def test_delete_user(client, user):
+    response = client.delete('/users/1')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Usuário deletado!'}
 
 
 def test_update_user_not_found(client):
@@ -92,3 +132,4 @@ def test_delete_user_not_found(client):
     assert response.status_code == HTTPStatus.NOT_FOUND
 
     assert response.json() == {'detail': 'Usuário não encontrado!'}
+

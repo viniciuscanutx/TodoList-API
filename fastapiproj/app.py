@@ -2,6 +2,7 @@ from http import HTTPStatus
 
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from fastapiproj.config.database import get_session
@@ -37,6 +38,11 @@ def read_all_users(
 @app.get('/users/{user_id}', response_model=UserSchemaDto)
 def get_user_per_id(user_id: int, session: Session = Depends(get_session)):
     db_user = session.scalar(select(User).where(User.id == user_id))
+    
+    if not db_user:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado!'
+        )
 
     return db_user
 
@@ -78,20 +84,25 @@ def update_user(
     user_id: int, user: UserSchema, session: Session = Depends(get_session)
 ):
     db_user = session.scalar(select(User).where(User.id == user_id))
-
     if not db_user:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado!'
+            status_code=HTTPStatus.NOT_FOUND, detail='User not found'
         )
 
-    db_user.email = user.email
-    db_user.username = user.username
-    db_user.password = user.password
+    try:
+        db_user.username = user.username
+        db_user.password = user.password
+        db_user.email = user.email
+        session.commit()
+        session.refresh(db_user)
 
-    session.commit()
-    session.refresh(db_user)
+        return db_user
 
-    return db_user
+    except IntegrityError:
+        raise HTTPException(
+            status_code=HTTPStatus.CONFLICT,
+            detail='Username ou Email já existentes!',
+        )
 
 
 @app.delete('/users/{user_id}', response_model=MessageUser)

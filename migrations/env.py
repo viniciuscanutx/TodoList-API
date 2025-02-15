@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from fastapiproj.settings import Settings
+from fastapiproj.config.settings import Settings
 
 from fastapiproj.models.model import table_registry
 
