@@ -1,12 +1,17 @@
 from http import HTTPStatus
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from fastapiproj.config.security.security import get_password_hash
 from fastapiproj.config.database import get_session
+from fastapiproj.config.security.security import (
+    create_access_token,
+    get_password_hash,
+    verify_password,
+)
 from fastapiproj.models.model import User
 from fastapiproj.schema.schema import (
     MessageUser,
@@ -70,9 +75,9 @@ def create_user(user: UserSchema, session=Depends(get_session)):
             )
 
     db_user = User(
-        username=user.username, 
-        email=user.email, 
-        password=get_password_hash(user.password)
+        username=user.username,
+        email=user.email,
+        password=get_password_hash(user.password),
     )
 
     session.add(db_user)
@@ -121,3 +126,27 @@ def delete_user(user_id: int, session: Session = Depends(get_session)):
     session.commit()
 
     return {'message': 'Usuário deletado com sucesso!'}
+
+
+@app.post('/token/get')
+def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Session = Depends(get_session),
+):
+    user = session.scalar(select(User).where(User.email == form_data.username))
+
+    if not user:
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Email ou Senha Incorretos!',
+        )
+
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=HTTPStatus.BAD_REQUEST,
+            detail='Email ou Senha Incorretos!',
+        )
+
+    access_token = create_access_token(data={'sub': user.email})
+
+    return {'access_token': access_token, 'token_type': 'bearer'}
