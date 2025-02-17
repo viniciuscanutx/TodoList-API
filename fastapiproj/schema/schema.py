@@ -20,3 +20,8 @@ class UserSchemaDto(BaseModel):
 
 class UserListDto(BaseModel):
     users: list[UserSchemaDto]
+    
+    
+class Token(BaseModel):
+    access_token: str
+    token_type: str
