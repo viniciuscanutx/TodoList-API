@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from fastapiproj.app import app
 from fastapiproj.config.database import get_session
+from fastapiproj.config.security.security import get_password_hash
 from fastapiproj.models.model import User, table_registry
 
 
@@ -42,9 +43,16 @@ def session():
 
 @pytest.fixture
 def user(session):
-    user = User(username='Teste', email='teste@test.com', password='testtest')
+    pwd = 'testtest'
+    user = User(
+        username='Teste',
+        email='teste@test.com',
+        password=get_password_hash(pwd),
+    )
     session.add(user)
     session.commit()
     session.refresh(user)
+
+    user.clean_password = pwd  # Monkey Patch
 
     return user

@@ -15,6 +15,7 @@ from fastapiproj.config.security.security import (
 from fastapiproj.models.model import User
 from fastapiproj.schema.schema import (
     MessageUser,
+    Token,
     UserListDto,
     UserSchema,
     UserSchemaDto,
@@ -128,7 +129,7 @@ def delete_user(user_id: int, session: Session = Depends(get_session)):
     return {'message': 'Usuário deletado com sucesso!'}
 
 
-@app.post('/token/get')
+@app.post('/token/get', response_model=Token)
 def login_for_access_token(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
@@ -149,4 +150,4 @@ def login_for_access_token(
 
     access_token = create_access_token(data={'sub': user.email})
 
-    return {'access_token': access_token, 'token_type': 'bearer'}
+    return {'access_token': access_token, 'token_type': 'Bearer'}
