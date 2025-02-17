@@ -24,7 +24,7 @@ app = FastAPI()
     include_in_schema=False,
 )
 def new_route():
-    return {'message': 'Feliz Natal!'}
+    return {'message': 'Working!'}
 
 
 @app.get('/users/get', response_model=UserListDto)
@@ -38,7 +38,7 @@ def read_all_users(
 @app.get('/users/{user_id}', response_model=UserSchemaDto)
 def get_user_per_id(user_id: int, session: Session = Depends(get_session)):
     db_user = session.scalar(select(User).where(User.id == user_id))
-    
+
     if not db_user:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado!'
@@ -86,7 +86,7 @@ def update_user(
     db_user = session.scalar(select(User).where(User.id == user_id))
     if not db_user:
         raise HTTPException(
-            status_code=HTTPStatus.NOT_FOUND, detail='User not found'
+            status_code=HTTPStatus.NOT_FOUND, detail='Usuário não encontrado!'
         )
 
     try:

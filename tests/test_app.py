@@ -8,7 +8,7 @@ def test_root_deve_retornar_ok_e_ola_mundo(client):
 
     assert response.status_code == HTTPStatus.OK  # Assert
     assert response.json() == {  # Assert
-        'message': 'Feliz Natal!'
+        'message': 'Working!'
     }
 
 
@@ -75,11 +75,9 @@ def test_get_user(client, user):
     }
 
 
-def test_create_user_should_return_400_username_exists__exercicio(
-    client, user
-):
+def test_create_user_should_return_400_username_exists(client, user):
     response = client.post(
-        '/users/',
+        '/users/add',
         json={
             'username': user.username,
             'email': 'alice@example.com',
@@ -87,14 +85,12 @@ def test_create_user_should_return_400_username_exists__exercicio(
         },
     )
     assert response.status_code == HTTPStatus.BAD_REQUEST
-    assert response.json() == {'detail': 'Username já existe!'}
+    assert response.json() == {'detail': 'Username ja existe!'}
 
 
-def test_create_user_should_return_400_email_exists__exercicio(
-    client, 
-    user):
+def test_create_user_should_return_400_email_exists__exercicio(client, user):
     response = client.post(
-        '/users/',
+        '/users/add',
         json={
             'username': 'alice',
             'email': user.email,
@@ -102,13 +98,13 @@ def test_create_user_should_return_400_email_exists__exercicio(
         },
     )
     assert response.status_code == HTTPStatus.BAD_REQUEST
-    assert response.json() == {'detail': 'Email já existe!'}
+    assert response.json() == {'detail': 'Email ja existe!'}
 
 
 def test_delete_user(client, user):
     response = client.delete('/users/1')
     assert response.status_code == HTTPStatus.OK
-    assert response.json() == {'message': 'Usuário deletado!'}
+    assert response.json() == {'message': 'Usuário deletado com sucesso!'}
 
 
 def test_update_user_not_found(client):
@@ -132,4 +128,3 @@ def test_delete_user_not_found(client):
     assert response.status_code == HTTPStatus.NOT_FOUND
 
     assert response.json() == {'detail': 'Usuário não encontrado!'}
-
