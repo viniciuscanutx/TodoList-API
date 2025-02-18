@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 
@@ -11,6 +13,15 @@ class UserSchema(BaseModel):
     password: str
 
 
+class UserSchemaToken(BaseModel):
+    id: int
+    username: str
+    email: EmailStr
+    password: str
+    created_at: datetime
+    updated_at: datetime
+
+
 class UserSchemaDto(BaseModel):
     id: int
     username: str
@@ -20,6 +31,10 @@ class UserSchemaDto(BaseModel):
 
 class UserListDto(BaseModel):
     users: list[UserSchemaDto]
+
+
+class UserListAdmDto(BaseModel):
+    users: list[UserSchemaToken]
 
 
 class Token(BaseModel):

@@ -1,20 +1,25 @@
+from dataclasses import asdict
+
 from sqlalchemy import select
 
 from fastapiproj.models.model import User
 
 
-def test_create_user(session):
-    user = User(
-        username='kleberpereira',
-        email='kleber@pereira.com',
-        password='minhasenha@123',
-    )
-    # Adicionando as infos de User a sessão.
-    session.add(user)
-    # Comitando as informações para o Banco de Dados.
-    session.commit()
-    result = session.scalar(
-        select(User).where(User.email == 'kleber@pereira.com')
-    )
+def test_create_user(session, mock_db_time):
+    with mock_db_time(model=User) as time:
+        new_user = User(
+            username='alice', password='secret', email='teste@test'
+        )
+        session.add(new_user)
+        session.commit()
 
-    assert result.id == 1
+    user = session.scalar(select(User).where(User.username == 'alice'))
+
+    assert asdict(user) == {
+        'id': 1,
+        'username': 'alice',
+        'password': 'secret',
+        'email': 'teste@test',
+        'created_at': time,
+        'updated_at': time,
+    }
