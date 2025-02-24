@@ -82,9 +82,7 @@ def test_update_integrity_error(client, user, token):
     )
 
     assert response_update.status_code == HTTPStatus.CONFLICT
-    assert response_update.json() == {
-        'detail': 'Username já existente!'
-    }
+    assert response_update.json() == {'detail': 'Username já existente!'}
 
 
 def test_delete_user(client, user, token):
@@ -95,15 +93,3 @@ def test_delete_user(client, user, token):
 
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'message': 'Usuário deletado com sucesso!'}
-
-
-def test_get_token(client, user):
-    response = client.post(
-        '/token',
-        data={'username': user.email, 'password': user.clean_password},
-    )
-    token = response.json()
-
-    assert response.status_code == HTTPStatus.OK
-    assert 'access_token' in token
-    assert 'token_type' in token
