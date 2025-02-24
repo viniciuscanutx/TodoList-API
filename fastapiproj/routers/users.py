@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -20,29 +21,26 @@ from fastapiproj.schema.schema import (
 
 router = APIRouter(prefix='/users', tags=['Users'])
 
+# Vars
+T_Session = Annotated[Session, Depends(get_session)]
+T_CurrentUser = Annotated[User, Depends(get_current_user)]
+
 
 @router.get('/get', response_model=UserListDto)
-def read_all_users(
-    skip: int = 0, limit: int = 10, session: Session = Depends(get_session)
-):
+def read_all_users(session: T_Session, skip: int = 0, limit: int = 10):
     user = session.scalars(select(User).limit(limit).offset(skip))
     return {'users': user}
 
 
 @router.get('/nuget', response_model=UserListAdmDto)
-def read_all_users_adm(
-    session: Session = Depends(get_session),
-):
+def read_all_users_adm(session: T_Session):
     users = session.scalars(select(User)).all()
-
-    for user in users:
-        get_password_hash(user.password)
 
     return {'users': users}
 
 
 @router.get('/{user_id}', response_model=UserSchemaDto)
-def get_user_per_id(user_id: int, session: Session = Depends(get_session)):
+def get_user_per_id(user_id: int, session: T_Session):
     db_user = session.scalar(select(User).where(User.id == user_id))
 
     if not db_user:
@@ -56,7 +54,7 @@ def get_user_per_id(user_id: int, session: Session = Depends(get_session)):
 @router.post(
     '/add', status_code=HTTPStatus.CREATED, response_model=UserSchemaDto
 )
-def create_user(user: UserSchema, session=Depends(get_session)):
+def create_user(user: UserSchema, session: T_Session):
     db_user = session.scalar(
         select(User).where(
             (User.username == user.username) | (User.email == user.email)
@@ -91,8 +89,8 @@ def create_user(user: UserSchema, session=Depends(get_session)):
 def update_user(
     user_id: int,
     user: UserSchema,
-    session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
+    session: T_Session,
+    current_user: T_CurrentUser,
 ):
     if current_user.id != user_id:
         raise HTTPException(status_code=400, detail='Você não tem permissão!')
@@ -124,11 +122,7 @@ def update_user(
 
 
 @router.delete('/{user_id}', response_model=MessageUser)
-def delete_user(
-    user_id: int,
-    session: Session = Depends(get_session),
-    current_user=Depends(get_current_user),
-):
+def delete_user(user_id: int, session: T_Session, current_user: T_CurrentUser):
     if current_user.id != user_id:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST,
