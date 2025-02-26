@@ -93,7 +93,9 @@ def update_user(
     current_user: T_CurrentUser,
 ):
     if current_user.id != user_id:
-        raise HTTPException(status_code=400, detail='Você não tem permissão!')
+        raise HTTPException(
+            status_code=HTTPStatus.FORBIDDEN, detail='Você não tem permissão!'
+        )
 
     existing_username = (
         session.query(User).filter(User.username == user.username).first()
@@ -125,7 +127,7 @@ def update_user(
 def delete_user(user_id: int, session: T_Session, current_user: T_CurrentUser):
     if current_user.id != user_id:
         raise HTTPException(
-            status_code=HTTPStatus.BAD_REQUEST,
+            status_code=HTTPStatus.FORBIDDEN,
             detail='Você não tem permissão!',
         )
 
