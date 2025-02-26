@@ -13,7 +13,6 @@ from fastapiproj.config.security.security import (
 from fastapiproj.models.model import User
 from fastapiproj.schema.schema import (
     MessageUser,
-    UserListAdmDto,
     UserListDto,
     UserSchema,
     UserSchemaDto,
@@ -30,13 +29,6 @@ T_CurrentUser = Annotated[User, Depends(get_current_user)]
 def read_all_users(session: T_Session, skip: int = 0, limit: int = 10):
     user = session.scalars(select(User).limit(limit).offset(skip))
     return {'users': user}
-
-
-@router.get('/nuget', response_model=UserListAdmDto)
-def read_all_users_adm(session: T_Session):
-    users = session.scalars(select(User)).all()
-
-    return {'users': users}
 
 
 @router.get('/{user_id}', response_model=UserSchemaDto)

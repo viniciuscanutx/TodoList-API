@@ -2,7 +2,6 @@ from http import HTTPStatus
 
 from fastapi import APIRouter
 
-from fastapiproj.routers import auth, users
 from fastapiproj.schema.schema import (
     MessageUser,
 )
