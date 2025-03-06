@@ -86,7 +86,7 @@ def update_user(
 ):
     if current_user.id != user_id:
         raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN, detail='Você não tem permissão!'
+            status_code=HTTPStatus.UNAUTHORIZED, detail='Você não tem permissão!'
         )
 
     existing_username = (
@@ -119,7 +119,7 @@ def update_user(
 def delete_user(user_id: int, session: T_Session, current_user: T_CurrentUser):
     if current_user.id != user_id:
         raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN,
+            status_code=HTTPStatus.UNAUTHORIZED,
             detail='Você não tem permissão!',
         )
 
