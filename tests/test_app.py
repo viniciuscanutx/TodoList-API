@@ -70,7 +70,7 @@ def test_update_integrity_error(client, user, token):
         },
     )
 
-    # Alterando o user das fixture para fausto
+    # Alterando o user da fixture para fausto
     response_update = client.put(
         f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},
@@ -95,11 +95,25 @@ def test_delete_user(client, user, token):
     assert response.json() == {'message': 'Usuário deletado com sucesso!'}
 
 
-def test_delete_wrong_user(client, user, token):
+def test_delete_wrong_user(client, user, double_user, token):
     response = client.delete(
-        f'/users/{user.id + 1}',
+        f'/users/{double_user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
 
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.json() == {'detail': 'Você não tem permissão!'}
+
+
+def test_update_user_with_wrong_user(client, user, double_user, token):
+    response = client.put(
+        f'/users/{double_user.id}',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'bob',
+            'email': 'bob@example.com',
+            'password': 'mynewpassword',
+        },
+    )
     assert response.status_code == HTTPStatus.FORBIDDEN
     assert response.json() == {'detail': 'Você não tem permissão!'}
