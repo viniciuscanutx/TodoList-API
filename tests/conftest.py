@@ -2,7 +2,6 @@ from contextlib import contextmanager
 from datetime import datetime
 
 import factory
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import StaticPool, create_engine, event
@@ -14,15 +13,16 @@ from fastapiproj.config.security.security import get_password_hash
 from fastapiproj.models.model import User, table_registry
 
 
-#Class que cria Users via factory-boy.
-#Isso é apenas para cobrir os testes.
+# Class que cria Users via factory-boy.
+# Isso é apenas para cobrir os testes.
 class UserFactory(factory.Factory):
     class Meta:
         model = User
-        
+
     username = factory.Sequence(lambda n: f'test{n}')
     email = factory.LazyAttribute(lambda obj: f'{obj.username}@test.com')
     password = factory.LazyAttribute(lambda obj: f'{obj.username}_senha')
+
 
 @pytest.fixture
 def client(session):
@@ -74,11 +74,25 @@ def mock_db_time():
 @pytest.fixture
 def user(session):
     password = 'testtest'
-    
-    user = UserFactory(
-        password=get_password_hash(password)
-    )
-    
+
+    user = UserFactory(password=get_password_hash(password))
+
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    user.clean_password = password
+
+    return user
+
+
+#Criado para os testes de update.
+@pytest.fixture
+def double_user(session):
+    password = 'testtest'
+
+    user = UserFactory(password=get_password_hash(password))
+
     session.add(user)
     session.commit()
     session.refresh(user)
