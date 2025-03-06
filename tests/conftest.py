@@ -86,7 +86,7 @@ def user(session):
     return user
 
 
-#Criado para os testes de update.
+# Criado para os testes de update.
 @pytest.fixture
 def double_user(session):
     password = 'testtest'
