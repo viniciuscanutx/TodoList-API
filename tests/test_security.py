@@ -21,7 +21,7 @@ def test_jwt_invalid_token(client):
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {'detail': 'Could not validate credentials'}
+    assert response.json() == {'detail': 'Credenciais Inválidas'}
 
 
 def test_get_current_user_not_found(client):
@@ -34,7 +34,7 @@ def test_get_current_user_not_found(client):
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {'detail': 'Could not validate credentials'}
+    assert response.json() == {'detail': 'Credenciais Inválidas'}
 
 
 def test_get_current_user_does_not_exists(client):
@@ -47,4 +47,4 @@ def test_get_current_user_does_not_exists(client):
     )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
-    assert response.json() == {'detail': 'Could not validate credentials'}
+    assert response.json() == {'detail': 'Credenciais Inválidas'}

@@ -4,7 +4,8 @@ from zoneinfo import ZoneInfo
 
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from jwt import DecodeError, decode, encode
+from jwt import decode, encode
+from jwt.exceptions import ExpiredSignatureError, PyJWTError
 from pwdlib import PasswordHash
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -44,7 +45,7 @@ def get_current_user(
 ):
     credentials_exception = HTTPException(
         status_code=HTTPStatus.UNAUTHORIZED,
-        detail='Could not validate credentials',
+        detail='Credenciais Inválidas',
         headers={'WWW-Authenticate': 'Bearer'},
     )
 
@@ -57,7 +58,10 @@ def get_current_user(
         if not subject_email:
             raise credentials_exception
 
-    except DecodeError:
+    except ExpiredSignatureError:
+        raise credentials_exception
+
+    except PyJWTError:
         raise credentials_exception
 
     user = session.scalar(select(User).where(User.email == subject_email))

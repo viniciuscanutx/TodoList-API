@@ -101,7 +101,7 @@ def test_delete_wrong_user(client, user, double_user, token):
         headers={'Authorization': f'Bearer {token}'},
     )
 
-    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {'detail': 'Você não tem permissão!'}
 
 
@@ -115,5 +115,5 @@ def test_update_user_with_wrong_user(client, user, double_user, token):
             'password': 'mynewpassword',
         },
     )
-    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {'detail': 'Você não tem permissão!'}
