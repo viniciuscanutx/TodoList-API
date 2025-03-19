@@ -31,4 +31,4 @@ def create_todo(
     session.commit()
     session.refresh(db_todo)
 
-    return todo
+    return db_todo
