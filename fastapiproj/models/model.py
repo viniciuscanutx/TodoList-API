@@ -1,9 +1,18 @@
 from datetime import datetime
+from enum import Enum
 
 from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column, registry
 
 table_registry = registry()
+
+
+class TodoState(str, Enum):
+    draft = 'draft'
+    todo = 'todo'
+    doing = 'doing'
+    done = 'done'
+    trash = 'trash'
 
 
 @table_registry.mapped_as_dataclass
