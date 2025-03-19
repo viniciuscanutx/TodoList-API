@@ -1,11 +1,14 @@
-from models.model import TodoState
+from typing import Optional
+
 from pydantic import BaseModel
+
+from fastapiproj.models.model import TodoState
 
 
 class TodoSchema(BaseModel):
     title: str
     description: str
-    category: str
+    category: Optional[str] = None
     state: TodoState
 
 
