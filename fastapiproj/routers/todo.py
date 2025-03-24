@@ -1,13 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from fastapiproj.config.database import get_session
 from fastapiproj.config.security.security import get_current_user
 from fastapiproj.models.model import Todo, User
-from fastapiproj.schema.todo_schema import TodoPublic, TodoSchema
+from fastapiproj.schema.schema import MessageUser
+from fastapiproj.schema.todo_schema import TodoList, TodoPublic, TodoSchema
 
 router = APIRouter(prefix='/todos', tags=['Todos'])
 
@@ -35,7 +36,7 @@ def create_todo(
     return db_todo
 
 
-@router.get('/get')
+@router.get('/get', response_model=TodoList)
 def list_todos(  # noqa
     session: Session,  # type: ignore
     user: CurrentUser,
@@ -59,3 +60,25 @@ def list_todos(  # noqa
     todos = session.scalars(query.offset(offset).limit(limit)).all()
 
     return {'todos': todos}
+
+
+@router.delete('/delete/{todo_id}', response_model=MessageUser)
+def delete_todo(
+    todo_id: int,
+    session: Session,  # type: ignore
+    user: CurrentUser,
+):
+    todo = session.scalar(
+        select(Todo).where(
+            Todo.user_id == user.id,
+            Todo.id == todo_id,
+        )
+    )
+
+    if not todo:
+        raise HTTPException(status_code=404, detail='Todo não encontrado!')
+
+    session.delete(todo)
+    session.commit()
+
+    return {'message': 'Task deletada com sucesso!'}
