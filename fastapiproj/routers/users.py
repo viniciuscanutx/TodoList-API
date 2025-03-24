@@ -13,6 +13,7 @@ from fastapiproj.config.security.security import (
 from fastapiproj.models.model import User
 from fastapiproj.schema.schema import (
     MessageUser,
+    UserCreateDto,
     UserListDto,
     UserSchema,
     UserSchemaDto,
@@ -44,7 +45,7 @@ def get_user_per_id(user_id: int, session: T_Session):
 
 
 @router.post(
-    '/add', status_code=HTTPStatus.CREATED, response_model=UserSchemaDto
+    '/add', status_code=HTTPStatus.CREATED, response_model=UserCreateDto
 )
 def create_user(user: UserSchema, session: T_Session):
     db_user = session.scalar(
