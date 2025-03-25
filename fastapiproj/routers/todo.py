@@ -62,6 +62,32 @@ def list_todos(  # noqa
     return {'todos': todos}
 
 
+@router.put('/update/{todo_id}', response_model=TodoPublic)
+def update_todo(
+    todo_id: int,
+    todo: TodoSchema,
+    session: Session,  # type: ignore
+    user: CurrentUser,
+):
+    db_todo = session.scalar(
+        select(Todo).where(
+            Todo.user_id == user.id,
+            Todo.id == todo_id,
+        )
+    )
+
+    if not db_todo:
+        raise HTTPException(status_code=404, detail='Todo não encontrado!')
+
+    for key, value in todo.model_dump().items():
+        setattr(db_todo, key, value)
+
+    session.commit()
+    session.refresh(db_todo)
+
+    return db_todo
+
+
 @router.delete('/delete/{todo_id}', response_model=MessageUser)
 def delete_todo(
     todo_id: int,
