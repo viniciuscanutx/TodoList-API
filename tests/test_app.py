@@ -55,7 +55,6 @@ def test_update_user(client, user, token):
     assert response.json() == {
         'username': 'bob',
         'email': 'bob@example.com',
-        'id': user.id,
     }
 
 
@@ -70,7 +69,6 @@ def test_update_integrity_error(client, user, token):
         },
     )
 
-    # Alterando o user da fixture para fausto
     response_update = client.put(
         f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},

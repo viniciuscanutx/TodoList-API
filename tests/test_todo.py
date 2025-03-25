@@ -117,3 +117,27 @@ def test_list_todos_empty(client, token):
     )
     assert response.status_code == HTTPStatus.OK
     assert response.json() == {'todos': []}
+
+
+def test_delete_todo(session, client, user, token):
+    todo = TodoFactory(user_id=user.id)
+    session.add(todo)
+    session.commit()
+
+    response = client.delete(
+        f'/todos/delete/{todo.id}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == {'message': 'Task deletada com sucesso!'}
+
+
+def test_delete_todo_not_found(session, client, user, token):
+    response = client.delete(
+        f'/todos/delete/{10}',
+        headers={'Authorization': f'Bearer {token}'},
+    )
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'Todo não encontrado!'}
