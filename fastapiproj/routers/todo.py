@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -6,9 +7,14 @@ from sqlalchemy.orm import Session
 
 from fastapiproj.config.database import get_session
 from fastapiproj.config.security.security import get_current_user
-from fastapiproj.models.model import Todo, User
+from fastapiproj.models.model import Todo, TodoState, User
 from fastapiproj.schema.schema import MessageUser
-from fastapiproj.schema.todo_schema import TodoList, TodoPublic, TodoSchema
+from fastapiproj.schema.todo_schema import (
+    TodoList,
+    TodoPublic,
+    TodoSchema,
+    TodoUpdate,
+)
 
 router = APIRouter(prefix='/todos', tags=['Todos'])
 
@@ -42,7 +48,7 @@ def list_todos(  # noqa
     user: CurrentUser,
     title: str | None = None,
     category: str | None = None,
-    state: str | None = None,
+    state: TodoState | None = None,
     offset: int | None = None,
     limit: int | None = None,
 ):
@@ -62,12 +68,12 @@ def list_todos(  # noqa
     return {'todos': todos}
 
 
-@router.put('/update/{todo_id}', response_model=TodoPublic)
-def update_todo(
+@router.patch('/patch/{todo_id}', response_model=TodoPublic)
+def patch_todo(
     todo_id: int,
-    todo: TodoSchema,
     session: Session,  # type: ignore
     user: CurrentUser,
+    todo: TodoUpdate,
 ):
     db_todo = session.scalar(
         select(Todo).where(
@@ -77,11 +83,14 @@ def update_todo(
     )
 
     if not db_todo:
-        raise HTTPException(status_code=404, detail='Todo não encontrado!')
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='Todo não encontrado!'
+        )
 
-    for key, value in todo.model_dump().items():
+    for key, value in todo.model_dump(exclude_unset=True).items():
         setattr(db_todo, key, value)
 
+    session.add(db_todo)
     session.commit()
     session.refresh(db_todo)
 
