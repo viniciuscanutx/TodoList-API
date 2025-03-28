@@ -27,6 +27,7 @@ pytest-cov = "^6.0.0"
 taskipy = "^1.14.1"
 factory-boy = "^3.3.3"
 freezegun = "^1.5.1"
+testcontainers = "^4.9.2"
 
 [tool.taskipy.tasks]
 lint = 'ruff check'
