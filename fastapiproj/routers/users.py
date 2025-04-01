@@ -32,6 +32,11 @@ def read_all_users(session: T_Session, skip: int = 0, limit: int = 10):
     return {'users': user}
 
 
+@router.get('/me', response_model=UserSchemaDto)
+def get_current_user_info(current_user: T_CurrentUser):
+    return current_user
+
+
 @router.get('/{user_id}', response_model=UserSchemaDto)
 def get_user_per_id(user_id: int, session: T_Session):
     db_user = session.scalar(select(User).where(User.id == user_id))
@@ -129,3 +134,6 @@ def delete_user(user_id: int, session: T_Session, current_user: T_CurrentUser):
     session.commit()
 
     return {'message': 'Usuário deletado com sucesso!'}
+
+
+
