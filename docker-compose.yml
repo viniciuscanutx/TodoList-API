@@ -18,7 +18,7 @@ services:
     depends_on:
       - fastapiproj_database
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL_TEST}
       SECRET_KEY: ${SECRET_KEY}
       ALGORITHM: ${ALGORITHM}
       ACCESS_TOKENEM: ${ACCESS_TOKENEM}

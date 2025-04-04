@@ -10,7 +10,7 @@ from fastapiproj.config.security.security import get_current_user
 from fastapiproj.models.model import Todo, TodoState, User
 from fastapiproj.schema.schema import MessageUser
 from fastapiproj.schema.todo_schema import (
-    TodoList,
+    TodoBase,
     TodoPublic,
     TodoSchema,
     TodoUpdate,
@@ -22,18 +22,20 @@ Session = Annotated[Session, Depends(get_session)]
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
 
-@router.post('/create', response_model=TodoPublic)
+@router.post('/create', response_model=TodoBase)
 def create_todo(
     todo: TodoSchema,
     user: CurrentUser,
     session: Session,  # type: ignore
 ):
     db_todo = Todo(
+        
         title=todo.title,
         description=todo.description,
         category=todo.category,
         state=todo.state,
         user_id=user.id,
+        
     )
     session.add(db_todo)
     session.commit()
@@ -42,7 +44,7 @@ def create_todo(
     return db_todo
 
 
-@router.get('/get', response_model=TodoList)
+@router.get('/get', response_model=TodoBase)
 def list_todos(  # noqa
     session: Session,  # type: ignore
     user: CurrentUser,

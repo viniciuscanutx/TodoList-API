@@ -37,7 +37,7 @@ run = 'fastapi dev fastapiproj/app.py'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=fastapiproj -vv -x'
 post_test = 'coverage html'
-alembicrev = 'alembic revision --autogenerate -m "create users table'
+alembicrev = 'alembic revision --autogenerate -m "create new todos table'
 alembichead = 'alembic upgrade head'
 
 [tool.pytest.ini_options]

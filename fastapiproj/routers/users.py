@@ -134,6 +134,3 @@ def delete_user(user_id: int, session: T_Session, current_user: T_CurrentUser):
     session.commit()
 
     return {'message': 'Usuário deletado com sucesso!'}
-
-
-
