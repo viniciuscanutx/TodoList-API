@@ -11,6 +11,7 @@ from fastapiproj.models.model import Todo, TodoState, User
 from fastapiproj.schema.schema import MessageUser
 from fastapiproj.schema.todo_schema import (
     TodoBase,
+    TodoList,
     TodoPublic,
     TodoSchema,
     TodoUpdate,
@@ -44,7 +45,7 @@ def create_todo(
     return db_todo
 
 
-@router.get('/get', response_model=TodoBase)
+@router.get('/get', response_model=TodoList)
 def list_todos(  # noqa
     session: Session,  # type: ignore
     user: CurrentUser,

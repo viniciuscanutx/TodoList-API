@@ -22,7 +22,7 @@ class TodoSchema(BaseModel):
     state: TodoState
 
 
-class TodoPublic(TodoSchema):
+class TodoPublic(TodoBase):
     id: int
 
 
