@@ -8,7 +8,7 @@ def test_root(client):
 
     assert response.status_code == HTTPStatus.OK  # Assert
     assert response.json() == {  # Assert
-        'message': 'Working!'
+        'message': 'API em funcionamento!'
     }
 
 
