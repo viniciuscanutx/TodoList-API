@@ -16,4 +16,4 @@ router = APIRouter(tags=['Welcome'], include_in_schema=False)
     include_in_schema=False,
 )
 def new_route():
-    return {'message': 'Working!'}
+    return {'message': 'API em funcionamento!'}
