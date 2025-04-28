@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class MessageUser(BaseModel):
@@ -14,6 +15,7 @@ class UserSchema(BaseModel):
 
 
 class UserSchemaDto(BaseModel):
+    id: int
     username: str
     email: EmailStr
     model_config = ConfigDict(from_attributes=True)
@@ -50,3 +52,9 @@ class UserListCreate(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class UserUpdateSchema(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None

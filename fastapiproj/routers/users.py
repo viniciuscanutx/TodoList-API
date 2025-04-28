@@ -17,6 +17,7 @@ from fastapiproj.schema.schema import (
     UserListDto,
     UserSchema,
     UserSchemaDto,
+    UserUpdateSchema,
 )
 
 router = APIRouter(prefix='/users', tags=['Users'])
@@ -86,7 +87,7 @@ def create_user(user: UserSchema, session: T_Session):
 @router.put('/{user_id}', response_model=UserSchemaDto)
 def update_user(
     user_id: int,
-    user: UserSchema,
+    user: UserUpdateSchema,
     session: T_Session,
     current_user: T_CurrentUser,
 ):
@@ -96,26 +97,40 @@ def update_user(
             detail='Você não tem permissão!',
         )
 
-    existing_username = (
-        session.query(User).filter(User.username == user.username).first()
-    )
-    existing_email = (
-        session.query(User).filter(User.email == user.email).first()
-    )
+    
+    if user.username is not None:
+        if user.username != current_user.username:
+            existing_username = (
+                session.query(User)
+                .filter(User.username == user.username)
+                .filter(User.id != user_id)
+                .first()
+            )
+            if existing_username:
+                raise HTTPException(
+                    status_code=HTTPStatus.CONFLICT, detail='Username já existente!'
+                )
+            current_user.username = user.username
 
-    if existing_username:
-        raise HTTPException(
-            status_code=HTTPStatus.CONFLICT, detail='Username já existente!'
-        )
+    
+    if user.email is not None:
+        if user.email != current_user.email:
+            existing_email = (
+                session.query(User)
+                .filter(User.email == user.email)
+                .filter(User.id != user_id)
+                .first()
+            )
+            if existing_email:
+                raise HTTPException(
+                    status_code=HTTPStatus.CONFLICT, detail='Email já existente!'
+                )
+            current_user.email = user.email
 
-    if existing_email:
-        raise HTTPException(
-            status_code=HTTPStatus.CONFLICT, detail='Email já existente!'
-        )
+    
+    if user.password is not None:
+        current_user.password = get_password_hash(user.password)
 
-    current_user.username = user.username
-    current_user.password = get_password_hash(user.password)
-    current_user.email = user.email
     session.commit()
     session.refresh(current_user)
 
